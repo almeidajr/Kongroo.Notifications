@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kongroo.Notifications.Api/Kongroo.Notifications.Api.csproj" />
+  </Folder>
+
+  <Folder Name="/tests/">
+    <Project Path="tests/Kongroo.Notifications.UnitTests/Kongroo.Notifications.UnitTests.csproj" />
+  </Folder>
+</Solution>
