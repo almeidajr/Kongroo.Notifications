@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Kongroo.BuildingBlocks/Kongroo.BuildingBlocks.csproj" />
     <Project Path="src/Kongroo.Notifications.Api/Kongroo.Notifications.Api.csproj" />
   </Folder>
 
   <Folder Name="/tests/">
     <Project Path="tests/Kongroo.Notifications.UnitTests/Kongroo.Notifications.UnitTests.csproj" />
+    <Project Path="tests/Kongroo.Notifications.IntegrationTests/Kongroo.Notifications.IntegrationTests.csproj" />
+    <Project Path="tests/Kongroo.Notifications.Specs/Kongroo.Notifications.Specs.csproj" />
   </Folder>
 </Solution>
