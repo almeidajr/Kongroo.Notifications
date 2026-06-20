@@ -1,28 +1,45 @@
+using System.Globalization;
+using Kongroo.Notifications.Application;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kongroo.Notifications.Specs.Support;
 
-public sealed class KongrooWebApplicationFactory : WebApplicationFactory<Program>
+public sealed class KongrooWebApplicationFactory(
+    string rabbitMqHost,
+    int rabbitMqPort,
+    string rabbitMqUser,
+    string rabbitMqPass
+) : WebApplicationFactory<Program>
 {
+    public RecordingNotificationSender NotificationSender { get; } = new();
+
+    public IBus Bus => Services.GetRequiredService<IBus>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
 
         builder.ConfigureAppConfiguration(
             (_, configurationBuilder) =>
-            {
-                var testConfiguration = new Dictionary<string, string?>
-                {
-                    ["Jwt:Issuer"] = "Kongroo.Notifications.Specs",
-                    ["Jwt:Audience"] = "Kongroo.Notifications.Specs",
-                    ["Jwt:SigningKey"] = "Kongroo.Notifications.Specs.SigningKey.For.Bdd.Tests",
-                    ["OutboxProcessing:PollingInterval"] = "00:10:00",
-                    ["OutboxProcessing:BatchSize"] = "1",
-                };
-
-                configurationBuilder.AddInMemoryCollection(testConfiguration);
-            }
+                configurationBuilder.AddInMemoryCollection(
+                    new Dictionary<string, string?>
+                    {
+                        ["RabbitMq:Host"] = rabbitMqHost,
+                        ["RabbitMq:Port"] = rabbitMqPort.ToString(CultureInfo.InvariantCulture),
+                        ["RabbitMq:User"] = rabbitMqUser,
+                        ["RabbitMq:Pass"] = rabbitMqPass,
+                    }
+                )
         );
+
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<INotificationSender>();
+            services.AddSingleton<INotificationSender>(NotificationSender);
+        });
 
         builder.ConfigureLogging(loggingBuilder => loggingBuilder.ClearProviders());
     }

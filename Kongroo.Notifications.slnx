@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Kongroo.BuildingBlocks/Kongroo.BuildingBlocks.csproj" />
+    <Project Path="src/Kongroo.Notifications/Kongroo.Notifications.csproj" />
     <Project Path="src/Kongroo.Notifications.Api/Kongroo.Notifications.Api.csproj" />
   </Folder>
 

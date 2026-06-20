@@ -1,16 +1,10 @@
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using HealthChecks.UI.Client;
-using Kongroo.BuildingBlocks;
-using Kongroo.BuildingBlocks.Presentation.Authorization;
+using Kongroo.Notifications;
 using Kongroo.Notifications.Api;
-using Kongroo.Notifications.Api.OpenApi;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -37,46 +31,14 @@ builder.Services.AddSerilog(configuration =>
         .Enrich.WithProperty("Application", AppDomain.CurrentDomain.FriendlyName)
 );
 
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-    options.AddOperationTransformer<BearerSecurityRequirementTransformer>();
-});
+builder.Services.AddOpenApi();
 
-builder.Services.AddValidation();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
 builder.Services.AddHealthChecks().AddApplicationLifecycleHealthCheck().AddResourceUtilizationHealthCheck();
 
-builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var jwtOptions =
-            builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>()
-            ?? throw new InvalidOperationException("Configuration section 'Jwt' is missing.");
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtOptions.Issuer,
-            ValidateAudience = true,
-            ValidAudience = jwtOptions.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = jwtOptions.CreateSigningKey(),
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
-            NameClaimType = JwtRegisteredClaimNames.UniqueName,
-            RoleClaimType = ClaimTypes.Role,
-        };
-    });
-
-builder
-    .Services.AddAuthorizationBuilder()
-    .AddPolicy(AuthorizationPolicies.AdminOnly, policy => policy.RequireRole("Admin"));
-
-builder.Services.AddBuildingBlocks(builder.Configuration);
+builder.Services.AddNotificationsModule(builder.Configuration);
 
 var app = builder.Build();
 
@@ -84,8 +46,6 @@ app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapHealthChecks("health", new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
 

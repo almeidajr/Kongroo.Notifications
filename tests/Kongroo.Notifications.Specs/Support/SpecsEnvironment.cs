@@ -1,8 +1,16 @@
+using System.Net;
+using Testcontainers.RabbitMq;
+
 namespace Kongroo.Notifications.Specs.Support;
 
 public static class SpecsEnvironment
 {
+    private const string RabbitMqImage = "rabbitmq:4-management";
+    private const string RabbitMqUsername = "kongroo";
+    private const string RabbitMqPassword = "development";
+
     private static readonly SemaphoreSlim Gate = new(1, 1);
+    private static RabbitMqContainer? _broker;
     private static KongrooWebApplicationFactory? _factory;
 
     public static KongrooWebApplicationFactory Factory =>
@@ -23,11 +31,21 @@ public static class SpecsEnvironment
                 return;
             }
 
-            _factory = new KongrooWebApplicationFactory();
+            _broker = new RabbitMqBuilder(RabbitMqImage)
+                .WithUsername(RabbitMqUsername)
+                .WithPassword(RabbitMqPassword)
+                .Build();
 
-            using var client = _factory.CreateClient();
-            using var response = await client.GetAsync("/health", cancellationToken);
-            response.EnsureSuccessStatusCode();
+            await _broker.StartAsync(cancellationToken);
+
+            _factory = new KongrooWebApplicationFactory(
+                _broker.Hostname,
+                _broker.GetMappedPublicPort(5672),
+                RabbitMqUsername,
+                RabbitMqPassword
+            );
+
+            await WaitForHealthyAsync(cancellationToken);
         }
         finally
         {
@@ -35,12 +53,42 @@ public static class SpecsEnvironment
         }
     }
 
+    public static void Reset() => _factory?.NotificationSender.Clear();
+
     public static async Task StopAsync()
     {
         if (_factory is not null)
         {
             await _factory.DisposeAsync();
             _factory = null;
+        }
+
+        if (_broker is not null)
+        {
+            await _broker.DisposeAsync();
+            _broker = null;
+        }
+    }
+
+    private static async Task WaitForHealthyAsync(CancellationToken cancellationToken)
+    {
+        using var client = Factory.CreateClient();
+
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(30);
+        while (true)
+        {
+            using var response = await client.GetAsync("/health", cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return;
+            }
+
+            if (DateTimeOffset.UtcNow >= deadline)
+            {
+                response.EnsureSuccessStatusCode();
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
         }
     }
 }

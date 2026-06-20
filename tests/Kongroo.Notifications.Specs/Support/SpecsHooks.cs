@@ -8,6 +8,9 @@ public sealed class SpecsHooks(ApiScenarioContext apiScenarioContext)
     [BeforeTestRun]
     public static async Task BeforeTestRunAsync() => await SpecsEnvironment.StartAsync();
 
+    [BeforeScenario("@webapi")]
+    public void BeforeScenario() => SpecsEnvironment.Reset();
+
     [AfterScenario("@webapi")]
     public void AfterScenario() => apiScenarioContext.Dispose();
 
