@@ -1,16 +1,13 @@
-using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.Domain;
-using Microsoft.Extensions.Logging;
 
 namespace Kongroo.Notifications.Infrastructure;
 
-/// <summary>Simulates email delivery by writing a structured log entry to stdout.</summary>
 public sealed class LoggingNotificationSender(ILogger<LoggingNotificationSender> logger) : INotificationSender
 {
     public async Task SendWelcomeAsync(WelcomeEmail email, CancellationToken cancellationToken)
     {
         logger.LogInformation("Sending welcome email to {Recipient} ({RecipientName}).", email.To, email.Name);
-
         await Task.Delay(Random.Shared.Next(500, 2000), cancellationToken);
     }
 
@@ -27,7 +24,6 @@ public sealed class LoggingNotificationSender(ILogger<LoggingNotificationSender>
             email.Amount,
             email.Currency
         );
-
         await Task.Delay(Random.Shared.Next(500, 2000), cancellationToken);
     }
 }

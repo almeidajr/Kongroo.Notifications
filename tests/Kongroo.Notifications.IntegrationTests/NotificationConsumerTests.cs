@@ -1,5 +1,6 @@
-using Kongroo.BuildingBlocks.Contracts;
+using Kongroo.Identity.Contracts;
 using Kongroo.Notifications.IntegrationTests.Support;
+using Kongroo.Payments.Contracts;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
@@ -10,7 +11,7 @@ namespace Kongroo.Notifications.IntegrationTests;
 public sealed class NotificationConsumerTests(RabbitMqFixture broker)
 {
     [Fact]
-    public async Task UserCreatedIntegrationEvent_ShouldProduceWelcomeEmail()
+    public async Task Consume_WithUserCreatedIntegrationEvent_ShouldProduceWelcomeEmail()
     {
         await using var factory = new NotificationsWebApplicationFactory(broker.Host, broker.Port);
         using var client = factory.CreateClient();
@@ -33,7 +34,7 @@ public sealed class NotificationConsumerTests(RabbitMqFixture broker)
     }
 
     [Fact]
-    public async Task ApprovedPaymentProcessedIntegrationEvent_ShouldProduceConfirmationEmail()
+    public async Task Consume_WithApprovedPaymentProcessedIntegrationEvent_ShouldProduceConfirmationEmail()
     {
         await using var factory = new NotificationsWebApplicationFactory(broker.Host, broker.Port);
         using var client = factory.CreateClient();
@@ -49,7 +50,7 @@ public sealed class NotificationConsumerTests(RabbitMqFixture broker)
                 "Grace Hopper",
                 59.90m,
                 "BRL",
-                Approved: true,
+                IsApproved: true,
                 DateTimeOffset.UtcNow
             ),
             TestContext.Current.CancellationToken

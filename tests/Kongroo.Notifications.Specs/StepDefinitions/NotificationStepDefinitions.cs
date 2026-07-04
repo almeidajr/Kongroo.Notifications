@@ -1,5 +1,6 @@
-using Kongroo.BuildingBlocks.Contracts;
+using Kongroo.Identity.Contracts;
 using Kongroo.Notifications.Specs.Support;
+using Kongroo.Payments.Contracts;
 using Reqnroll;
 using Shouldly;
 
@@ -22,7 +23,7 @@ public sealed class NotificationStepDefinitions
                 name,
                 59.90m,
                 "BRL",
-                Approved: true,
+                IsApproved: true,
                 DateTimeOffset.UtcNow
             )
         );

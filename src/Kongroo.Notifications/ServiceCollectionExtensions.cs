@@ -1,8 +1,7 @@
 using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.Infrastructure;
 using MassTransit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Kongroo.Notifications;
 

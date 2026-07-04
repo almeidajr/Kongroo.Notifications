@@ -1,6 +1,7 @@
-using Kongroo.BuildingBlocks.Contracts;
 using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.Domain;
+using Kongroo.Payments.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -25,7 +26,7 @@ public sealed class PaymentProcessedIntegrationEventConsumerTests
             "Grace Hopper",
             59.90m,
             "BRL",
-            Approved: true,
+            IsApproved: true,
             DateTimeOffset.UtcNow
         );
 
@@ -64,7 +65,7 @@ public sealed class PaymentProcessedIntegrationEventConsumerTests
             "Grace Hopper",
             59.90m,
             "BRL",
-            Approved: false,
+            IsApproved: false,
             DateTimeOffset.UtcNow
         );
 

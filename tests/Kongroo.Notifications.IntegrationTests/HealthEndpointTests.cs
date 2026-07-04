@@ -8,7 +8,7 @@ namespace Kongroo.Notifications.IntegrationTests;
 public sealed class HealthEndpointTests(RabbitMqFixture broker)
 {
     [Fact]
-    public async Task GetHealth_ShouldReturnOk()
+    public async Task GetAsync_WithHealthEndpoint_ShouldReturnOk()
     {
         await using var factory = new NotificationsWebApplicationFactory(broker.Host, broker.Port);
         using var client = factory.CreateClient();
@@ -17,7 +17,7 @@ public sealed class HealthEndpointTests(RabbitMqFixture broker)
     }
 
     [Fact]
-    public async Task GetOpenApiDocument_InDevelopment_ShouldReturnOk()
+    public async Task GetAsync_WithOpenApiDocumentInDevelopment_ShouldReturnOk()
     {
         await using var factory = new NotificationsWebApplicationFactory(broker.Host, broker.Port);
         using var client = factory.CreateClient();

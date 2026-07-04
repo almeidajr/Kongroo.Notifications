@@ -1,5 +1,5 @@
 using System.Globalization;
-using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.IntegrationTests.Support;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

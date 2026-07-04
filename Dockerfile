@@ -1,10 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 COPY . .
-RUN dotnet restore src/Kongroo.Notifications.Api --locked-mode
+RUN dotnet restore src/Kongroo.Notifications --locked-mode
 
 FROM restore AS build
-RUN dotnet publish src/Kongroo.Notifications.Api \
+RUN dotnet publish src/Kongroo.Notifications \
     -c Release \
     -o /app/publish \
     --no-restore
@@ -16,4 +16,4 @@ WORKDIR /app
 COPY --from=build --chown=kongroo:kongroo /app/publish .
 USER kongroo
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Kongroo.Notifications.Api.dll"]
+ENTRYPOINT ["dotnet", "Kongroo.Notifications.dll"]

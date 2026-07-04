@@ -1,13 +1,13 @@
-# Kongroo.Notifications
+# <img alt="Kongroo" src="./logo.png" width="40"/> Kongroo.Notifications
 
 Notifications microservice for FIAP Cloud Games (Phase 2). Consume-only service that
 simulates email delivery by writing structured log entries to stdout.
 
 ## Consumed events
 
-| Event | Source | Action |
-| --- | --- | --- |
-| `UserCreatedIntegrationEvent` | Identity | Logs a simulated welcome email |
+| Event                                         | Source   | Action                                       |
+| --------------------------------------------- | -------- | -------------------------------------------- |
+| `UserCreatedIntegrationEvent`                 | Identity | Logs a simulated welcome email               |
 | `PaymentProcessedIntegrationEvent` (Approved) | Payments | Logs a simulated purchase-confirmation email |
 
 Messaging uses MassTransit over RabbitMQ. Contracts live in
@@ -15,13 +15,13 @@ Messaging uses MassTransit over RabbitMQ. Contracts live in
 
 ## Environment variables
 
-| Variable | Description | Local default |
-| --- | --- | --- |
-| `ASPNETCORE_ENVIRONMENT` | ASP.NET Core environment | `Development` |
-| `RabbitMq__Host` | RabbitMQ host (k8s Service name in-cluster) | `localhost` |
-| `RabbitMq__Port` | RabbitMQ AMQP port (optional) | `5672` |
-| `RabbitMq__User` | RabbitMQ username | `kongroo` |
-| `RabbitMq__Pass` | RabbitMQ password | `development` |
+| Variable                 | Description                                 | Local default |
+| ------------------------ | ------------------------------------------- | ------------- |
+| `ASPNETCORE_ENVIRONMENT` | ASP.NET Core environment                    | `Development` |
+| `RabbitMq__Host`         | RabbitMQ host (k8s Service name in-cluster) | `localhost`   |
+| `RabbitMq__Port`         | RabbitMQ AMQP port (optional)               | `5672`        |
+| `RabbitMq__User`         | RabbitMQ username                           | `kongroo`     |
+| `RabbitMq__Pass`         | RabbitMQ password                           | `development` |
 
 > MassTransit binds credentials from `RabbitMq__User` / `RabbitMq__Pass`. Using
 > `Username` / `Password` silently falls back to `guest` / `guest`.

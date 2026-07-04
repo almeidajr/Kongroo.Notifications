@@ -1,5 +1,6 @@
-using Kongroo.BuildingBlocks.Contracts;
+using Kongroo.Identity.Contracts;
 using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.Domain;
 using MassTransit;
 using NSubstitute;
@@ -9,7 +10,7 @@ namespace Kongroo.Notifications.UnitTests.Application;
 public sealed class UserCreatedIntegrationEventConsumerTests
 {
     [Fact]
-    public async Task Consume_ShouldSendWelcomeEmailMappedFromTheEvent()
+    public async Task Consume_WithUserCreatedIntegrationEvent_ShouldSendWelcomeEmailMappedFromEvent()
     {
         var sender = Substitute.For<INotificationSender>();
         var consumer = new UserCreatedIntegrationEventConsumer(sender);

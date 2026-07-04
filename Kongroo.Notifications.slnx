@@ -1,10 +1,15 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Kongroo.BuildingBlocks/Kongroo.BuildingBlocks.csproj" />
+    <Project
+      Path="src/Kongroo.Identity.Contracts/Kongroo.Identity.Contracts.csproj"
+      Id="98019dbc-69ff-46a2-ac12-94f8e3f0377d"
+    />
     <Project Path="src/Kongroo.Notifications/Kongroo.Notifications.csproj" />
-    <Project Path="src/Kongroo.Notifications.Api/Kongroo.Notifications.Api.csproj" />
+    <Project
+      Path="src/Kongroo.Payments.Contracts/Kongroo.Payments.Contracts.csproj"
+      Id="cbfaace8-6d2e-4424-b758-3360ebf8e1a4"
+    />
   </Folder>
-
   <Folder Name="/tests/">
     <Project Path="tests/Kongroo.Notifications.UnitTests/Kongroo.Notifications.UnitTests.csproj" />
     <Project Path="tests/Kongroo.Notifications.IntegrationTests/Kongroo.Notifications.IntegrationTests.csproj" />

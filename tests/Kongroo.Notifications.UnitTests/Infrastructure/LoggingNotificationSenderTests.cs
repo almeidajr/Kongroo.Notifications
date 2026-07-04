@@ -9,7 +9,7 @@ namespace Kongroo.Notifications.UnitTests.Infrastructure;
 public sealed class LoggingNotificationSenderTests
 {
     [Fact]
-    public async Task SendWelcomeAsync_ShouldLogInformationContainingRecipient()
+    public async Task SendWelcomeAsync_WithWelcomeEmail_ShouldLogInformationContainingRecipient()
     {
         var collector = new FakeLogCollector();
         var sender = new LoggingNotificationSender(new FakeLogger<LoggingNotificationSender>(collector));
@@ -26,7 +26,7 @@ public sealed class LoggingNotificationSenderTests
     }
 
     [Fact]
-    public async Task SendPurchaseConfirmationAsync_ShouldLogInformationContainingOrderDetails()
+    public async Task SendPurchaseConfirmationAsync_WithPurchaseConfirmationEmail_ShouldLogInformationContainingOrderDetails()
     {
         var collector = new FakeLogCollector();
         var sender = new LoggingNotificationSender(new FakeLogger<LoggingNotificationSender>(collector));

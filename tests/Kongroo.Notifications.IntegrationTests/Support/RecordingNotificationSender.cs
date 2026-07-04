@@ -1,4 +1,4 @@
-using Kongroo.Notifications.Application;
+using Kongroo.Notifications.Application.Abstractions;
 using Kongroo.Notifications.Domain;
 
 namespace Kongroo.Notifications.IntegrationTests.Support;

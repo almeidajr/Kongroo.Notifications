@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using HealthChecks.UI.Client;
 using Kongroo.Notifications;
-using Kongroo.Notifications.Api;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
@@ -32,12 +31,9 @@ builder.Services.AddSerilog(configuration =>
 );
 
 builder.Services.AddOpenApi();
-
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
-
 builder.Services.AddHealthChecks().AddApplicationLifecycleHealthCheck().AddResourceUtilizationHealthCheck();
-
 builder.Services.AddNotificationsModule(builder.Configuration);
 
 var app = builder.Build();

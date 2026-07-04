@@ -1,11 +1,7 @@
 using Kongroo.BuildingBlocks.Application;
 
-namespace Kongroo.BuildingBlocks.Contracts;
+namespace Kongroo.Payments.Contracts;
 
-/// <summary>
-/// Published by the Payments service when a payment is processed. Consumed to send a purchase
-/// confirmation email when <see cref="Approved"/> is <c>true</c>.
-/// </summary>
 public sealed record PaymentProcessedIntegrationEvent(
     Guid OrderId,
     Guid UserId,
@@ -13,6 +9,6 @@ public sealed record PaymentProcessedIntegrationEvent(
     string CustomerName,
     decimal Amount,
     string Currency,
-    bool Approved,
+    bool IsApproved,
     DateTimeOffset ProcessedAt
 ) : IntegrationEvent;
