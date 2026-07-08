@@ -10,8 +10,9 @@ simulates email delivery by writing structured log entries to stdout.
 | `UserCreatedIntegrationEvent`                 | Identity | Logs a simulated welcome email               |
 | `PaymentProcessedIntegrationEvent` (Approved) | Payments | Logs a simulated purchase-confirmation email |
 
-Messaging uses MassTransit over RabbitMQ. Contracts live in
-`Kongroo.BuildingBlocks.Contracts` and must match the publishers' namespace and type names.
+Messaging uses MassTransit over RabbitMQ. Contract projects are copied into
+`src/Kongroo.Identity.Contracts` and `src/Kongroo.Payments.Contracts`; they must
+match the publishers' namespace, type names, and property names.
 
 ## Environment variables
 
@@ -29,7 +30,7 @@ Messaging uses MassTransit over RabbitMQ. Contracts live in
 ## Running locally
 
 ```bash
-dotnet run --project src/Kongroo.Notifications.Api
+dotnet run --project src/Kongroo.Notifications
 ```
 
 Requires a reachable RabbitMQ broker (see the orchestration repo's `compose.yaml`).

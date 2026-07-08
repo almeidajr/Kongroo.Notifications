@@ -20,6 +20,7 @@ public sealed class PaymentProcessedIntegrationEventConsumerTests
         );
         var orderId = Guid.CreateVersion7();
         var message = new PaymentProcessedIntegrationEvent(
+            Guid.CreateVersion7(),
             orderId,
             Guid.CreateVersion7(),
             "grace@example.com",
@@ -59,6 +60,7 @@ public sealed class PaymentProcessedIntegrationEventConsumerTests
             NullLogger<PaymentProcessedIntegrationEventConsumer>.Instance
         );
         var message = new PaymentProcessedIntegrationEvent(
+            Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             Guid.CreateVersion7(),
             "grace@example.com",

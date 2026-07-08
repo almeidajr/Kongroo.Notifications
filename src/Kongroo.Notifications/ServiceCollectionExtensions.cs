@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
 
             services.AddMassTransit(busRegistration =>
             {
-                busRegistration.SetKebabCaseEndpointNameFormatter();
+                busRegistration.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("notifications"));
                 busRegistration.AddConsumer<UserCreatedIntegrationEventConsumer>();
                 busRegistration.AddConsumer<PaymentProcessedIntegrationEventConsumer>();
                 busRegistration.UsingRabbitMq((context, busFactory) => busFactory.ConfigureEndpoints(context));

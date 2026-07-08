@@ -44,6 +44,7 @@ public sealed class NotificationConsumerTests(RabbitMqFixture broker)
         var bus = factory.Services.GetRequiredService<IBus>();
         await bus.Publish(
             new PaymentProcessedIntegrationEvent(
+                Guid.CreateVersion7(),
                 orderId,
                 Guid.CreateVersion7(),
                 "grace@example.com",

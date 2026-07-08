@@ -24,10 +24,10 @@ public sealed class PaymentProcessedIntegrationEventConsumer(
 
         await notificationSender.SendPurchaseConfirmationAsync(
             new PurchaseConfirmationEmail(
-                message.Email,
+                message.CustomerEmail,
                 message.CustomerName,
                 message.OrderId,
-                message.Amount,
+                message.TotalAmount,
                 message.Currency
             ),
             context.CancellationToken

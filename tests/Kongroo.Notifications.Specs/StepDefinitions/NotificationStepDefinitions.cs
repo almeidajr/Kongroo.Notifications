@@ -19,6 +19,7 @@ public sealed class NotificationStepDefinitions
             new PaymentProcessedIntegrationEvent(
                 Guid.CreateVersion7(),
                 Guid.CreateVersion7(),
+                Guid.CreateVersion7(),
                 email,
                 name,
                 59.90m,
