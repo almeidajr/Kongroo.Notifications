@@ -1,0 +1,12 @@
+{
+  "Information": [
+    "Defaults for Amazon.Lambda.Tools and `sam build`. Deployment goes through SAM (template.yaml at the repo root)."
+  ],
+  "profile": "default",
+  "region": "us-east-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet10",
+  "function-memory-size": 512,
+  "function-timeout": 10,
+  "function-handler": "Kongroo.Notifications::Kongroo.Notifications.Function::Handle"
+}
