@@ -42,6 +42,24 @@ public sealed class FunctionTests
     }
 
     [Fact]
+    public void Handle_WhenARecordBodyIsNull_ShouldReportOnlyThatRecordAsFailed()
+    {
+        var logger = new RecordingLambdaLogger();
+        var context = CreateContext(logger);
+        var sqsEvent = CreateEvent(
+            ("first", Envelopes.UserCreated),
+            ("null-body", null!),
+            ("third", Envelopes.PaymentApproved)
+        );
+
+        var response = Function.Handle(sqsEvent, context);
+
+        response.BatchItemFailures.ShouldHaveSingleItem().ItemIdentifier.ShouldBe("null-body");
+        logger.Lines.Count.ShouldBe(3);
+        logger.Lines[1].ShouldContain("null-body");
+    }
+
+    [Fact]
     public void Handle_WithUnknownMessageType_ShouldAcknowledgeWithoutFailure()
     {
         var logger = new RecordingLambdaLogger();
@@ -52,6 +70,19 @@ public sealed class FunctionTests
 
         response.BatchItemFailures.ShouldBeEmpty();
         logger.Lines.ShouldHaveSingleItem().ShouldContain("Ignoring unknown message type");
+    }
+
+    [Fact]
+    public void Handle_WithNoRecords_ShouldReturnEmptyFailures()
+    {
+        var logger = new RecordingLambdaLogger();
+        var context = CreateContext(logger);
+        var sqsEvent = CreateEvent();
+
+        var response = Function.Handle(sqsEvent, context);
+
+        response.BatchItemFailures.ShouldBeEmpty();
+        logger.Lines.ShouldBeEmpty();
     }
 
     private static ILambdaContext CreateContext(ILambdaLogger logger)

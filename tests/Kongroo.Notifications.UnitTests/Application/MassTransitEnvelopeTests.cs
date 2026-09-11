@@ -38,4 +38,20 @@ public sealed class MassTransitEnvelopeTests
     [Fact]
     public void Parse_WhenBodyIsNotJson_ShouldThrowJsonException() =>
         Should.Throw<JsonException>(() => MassTransitEnvelope.Parse(Envelopes.NotJson));
+
+    [Fact]
+    public void Parse_WhenMessageIsNotAnObject_ShouldThrowJsonException() =>
+        Should.Throw<JsonException>(() => MassTransitEnvelope.Parse(Envelopes.MessageNotObject));
+
+    [Fact]
+    public void Parse_WhenFirstMessageTypeIsNull_ShouldThrowJsonException() =>
+        Should.Throw<JsonException>(() => MassTransitEnvelope.Parse(Envelopes.NullMessageType));
+
+    [Fact]
+    public void Deserialize_WhenElementIsJsonNull_ShouldThrowJsonException()
+    {
+        var element = JsonElement.Parse("null");
+
+        Should.Throw<JsonException>(() => MassTransitEnvelope.Deserialize<UserCreatedIntegrationEvent>(element));
+    }
 }

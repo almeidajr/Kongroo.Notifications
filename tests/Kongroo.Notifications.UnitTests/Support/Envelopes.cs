@@ -79,5 +79,21 @@ internal static class Envelopes
         { "messageId": "0199342a-2b3c-7d4e-8f90-0123456789ee", "message": { "email": "x@example.com" } }
         """;
 
+    public const string MessageNotObject = """
+        {
+          "messageId": "0199342a-2b3c-7d4e-8f90-0123456789ff",
+          "messageType": ["urn:message:Kongroo.Identity.Contracts:UserCreatedIntegrationEvent"],
+          "message": "just a string"
+        }
+        """;
+
+    public const string NullMessageType = """
+        {
+          "messageId": "0199342a-2b3c-7d4e-8f90-012345678900",
+          "messageType": [null],
+          "message": {}
+        }
+        """;
+
     public const string NotJson = "this is not json";
 }
