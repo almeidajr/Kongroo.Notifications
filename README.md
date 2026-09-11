@@ -26,8 +26,8 @@ which writes the MassTransit JSON envelope to SNS. The subscriptions use raw mes
 function reads `messageType[0]` and `message` from the SQS body and deserializes the copied contracts in
 `src/Kongroo.Identity.Contracts` and `src/Kongroo.Payments.Contracts`.
 
-Malformed records are reported as partial batch failures, retried up to 3 times, then parked in the
-dead-letter queue. Unknown message types are acknowledged, not retried.
+Malformed records are reported as partial batch failures, delivered up to 3 times (two retries), then
+parked in the dead-letter queue. Unknown message types are acknowledged, not retried.
 
 ## Repository layout
 
@@ -47,6 +47,11 @@ tests/Kongroo.Notifications.UnitTests
 1. Start the lab, open **AWS Details → AWS CLI → Show**, paste the block into `~/.aws/credentials`.
 2. `sam build && sam deploy` (first time creates the stack; later runs update it).
 3. Watch: `sam logs --stack-name kongroo-notifications --name NotificationsFunction --tail`.
+4. Deploy the stack **before** starting Identity/Payments with `Messaging__Transport=AmazonSqs`: the
+   topic names are explicit, so if a service already created `kongroo-user-created` or
+   `kongroo-payment-processed`, `sam deploy` fails with `AlreadyExists` — delete that topic
+   (`aws sns delete-topic --topic-arn <arn>`) and redeploy; MassTransit reuses the stack-owned topic
+   afterwards.
 
 Tooling on a locked-down Windows machine: `dotnet tool install -g Amazon.Lambda.Tools`, and
 `uv tool install aws-sam-cli --python 3.13` / `uv tool install awscli --python 3.13` when MSI

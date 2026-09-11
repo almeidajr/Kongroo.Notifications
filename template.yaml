@@ -53,6 +53,7 @@ Resources:
 
   UserCreatedSubscription:
     Type: AWS::SNS::Subscription
+    DependsOn: NotificationsQueuePolicy
     Properties:
       TopicArn: !Ref UserCreatedTopic
       Protocol: sqs
@@ -61,6 +62,7 @@ Resources:
 
   PaymentProcessedSubscription:
     Type: AWS::SNS::Subscription
+    DependsOn: NotificationsQueuePolicy
     Properties:
       TopicArn: !Ref PaymentProcessedTopic
       Protocol: sqs
@@ -69,6 +71,7 @@ Resources:
 
   NotificationsFunction:
     Type: AWS::Serverless::Function
+    DependsOn: NotificationsFunctionLogGroup
     Properties:
       FunctionName: kongroo-notifications
       Description: Logs simulated welcome and purchase-confirmation emails for FIAP Cloud Games.
@@ -90,10 +93,11 @@ Resources:
             FunctionResponseTypes:
               - ReportBatchItemFailures
 
+  # Created before the function so Lambda's implicit log-group creation cannot collide with it.
   NotificationsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${NotificationsFunction}
+      LogGroupName: /aws/lambda/kongroo-notifications
       RetentionInDays: 7
 
 Outputs:
@@ -101,8 +105,11 @@ Outputs:
     Description: SQS queue the function consumes
     Value: !Ref NotificationsQueue
   UserCreatedTopicArn:
+    Description: SNS topic Identity publishes UserCreatedIntegrationEvent to
     Value: !Ref UserCreatedTopic
   PaymentProcessedTopicArn:
+    Description: SNS topic Payments publishes PaymentProcessedIntegrationEvent to
     Value: !Ref PaymentProcessedTopic
   NotificationsFunctionName:
+    Description: Deployed Lambda function name
     Value: !Ref NotificationsFunction
