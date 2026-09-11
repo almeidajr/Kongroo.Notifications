@@ -1,52 +1,73 @@
 # <img alt="Kongroo" src="./logo.png" width="40"/> Kongroo.Notifications
 
-Notifications microservice for FIAP Cloud Games (Phase 2). Consume-only service that
-simulates email delivery by writing structured log entries to stdout.
+Serverless notifications for FIAP Cloud Games (Phase 3). An **AWS Lambda** (.NET 10) triggered by an
+**SQS queue** replaces the always-on NotificationsAPI container from Phase 2. It simulates email delivery
+by writing structured log lines to **CloudWatch Logs**.
 
-## Consumed events
+## How it is triggered
 
-| Event                                         | Source   | Action                                       |
-| --------------------------------------------- | -------- | -------------------------------------------- |
-| `UserCreatedIntegrationEvent`                 | Identity | Logs a simulated welcome email               |
-| `PaymentProcessedIntegrationEvent` (Approved) | Payments | Logs a simulated purchase-confirmation email |
-
-Messaging uses MassTransit over RabbitMQ. Contract projects are copied into
-`src/Kongroo.Identity.Contracts` and `src/Kongroo.Payments.Contracts`; they must
-match the publishers' namespace, type names, and property names.
-
-## Environment variables
-
-| Variable                 | Description                                 | Local default |
-| ------------------------ | ------------------------------------------- | ------------- |
-| `ASPNETCORE_ENVIRONMENT` | ASP.NET Core environment                    | `Development` |
-| `RabbitMq__Host`         | RabbitMQ host (k8s Service name in-cluster) | `localhost`   |
-| `RabbitMq__Port`         | RabbitMQ AMQP port (optional)               | `5672`        |
-| `RabbitMq__User`         | RabbitMQ username                           | `kongroo`     |
-| `RabbitMq__Pass`         | RabbitMQ password                           | `development` |
-
-> MassTransit binds credentials from `RabbitMq__User` / `RabbitMq__Pass`. Using
-> `Username` / `Password` silently falls back to `guest` / `guest`.
-
-## Running locally
-
-```bash
-dotnet run --project src/Kongroo.Notifications
+```
+Identity ──publish──▶ SNS kongroo-user-created ──────┐
+                                                     ├──▶ SQS kongroo-notifications ──▶ Lambda ──▶ CloudWatch
+Payments ──publish──▶ SNS kongroo-payment-processed ─┘          │ 3 failures
+                                                                ▼
+                                                    SQS kongroo-notifications-dlq
 ```
 
-Requires a reachable RabbitMQ broker (see the orchestration repo's `compose.yaml`).
-`/health` reports unhealthy until the broker connection is established.
+| Event                                         | Source   | Action                                       |
+| --------------------------------------------- | -------- | --------------------------------------------- |
+| `UserCreatedIntegrationEvent`                 | Identity | Logs a simulated welcome email               |
+| `PaymentProcessedIntegrationEvent` (Approved) | Payments | Logs a simulated purchase-confirmation email |
+| `PaymentProcessedIntegrationEvent` (Rejected) | Payments | Logs a skip line, no email                   |
+| anything else                                 | —        | Logged and acknowledged                      |
 
-## Docker
+The services publish through MassTransit's Amazon SQS transport (`Messaging__Transport=AmazonSqs`),
+which writes the MassTransit JSON envelope to SNS. The subscriptions use raw message delivery, so the
+function reads `messageType[0]` and `message` from the SQS body and deserializes the copied contracts in
+`src/Kongroo.Identity.Contracts` and `src/Kongroo.Payments.Contracts`.
 
-```bash
-dotnet restore
-docker build -t kongroo-notifications .
+Malformed records are reported as partial batch failures, retried up to 3 times, then parked in the
+dead-letter queue. Unknown message types are acknowledged, not retried.
+
+## Repository layout
+
+```
+template.yaml                 SAM: topics, queue, DLQ, subscriptions, function (LabRole)
+samconfig.toml                stack kongroo-notifications, region us-east-1
+samples/*.envelope.json       envelopes for manual `aws sns publish`
+src/Kongroo.Notifications     Function.Handle + Application/NotificationHandler (pure) + Domain records +
+                               aws-lambda-tools-defaults.json (runtime dotnet10, framework net10.0 — SAM
+                               reads the TFM from here because Directory.Build.props owns it)
+src/*.Contracts               copies of the publishers' event contracts
+tests/Kongroo.Notifications.UnitTests
+```
+
+## Deploy (AWS Academy Learner Lab)
+
+1. Start the lab, open **AWS Details → AWS CLI → Show**, paste the block into `~/.aws/credentials`.
+2. `sam build && sam deploy` (first time creates the stack; later runs update it).
+3. Watch: `sam logs --stack-name kongroo-notifications --name NotificationsFunction --tail`.
+
+Tooling on a locked-down Windows machine: `dotnet tool install -g Amazon.Lambda.Tools`, and
+`uv tool install aws-sam-cli --python 3.13` / `uv tool install awscli --python 3.13` when MSI
+installers are blocked.
+
+The function role is the lab's pre-created `LabRole` (Learner Lab forbids creating IAM roles).
+Credentials expire with the session (~4 h); the deployed stack keeps running.
+
+Manual trigger without the services:
+
+```powershell
+$topic = aws cloudformation describe-stacks --stack-name kongroo-notifications `
+  --query "Stacks[0].Outputs[?OutputKey=='UserCreatedTopicArn'].OutputValue" --output text
+aws sns publish --topic-arn $topic --message file://samples/user-created.envelope.json
 ```
 
 ## Tests
 
 ```bash
-dotnet test
+dotnet test tests/Kongroo.Notifications.UnitTests
 ```
 
-Integration and BDD tests start a RabbitMQ container via Testcontainers and require Docker.
+No Docker needed. Tests cover envelope parsing, the event-to-email mapping, rejected and unknown
+messages, and partial batch failure reporting.
