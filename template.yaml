@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Kongroo Notifications — serverless replacement for the NotificationsAPI container.
+  A Lambda triggered by an SQS queue subscribed to the MassTransit SNS topics of Identity and Payments.
+
+Resources:
+  # Topic names are fixed by contract with MessagingTopics in Kongroo.Identity / Kongroo.Payments /
+  # Kongroo.Catalog (SetEntityName). MassTransit reuses these topics when the services start.
+  UserCreatedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: kongroo-user-created
+
+  PaymentProcessedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: kongroo-payment-processed
+
+  NotificationsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: kongroo-notifications-dlq
+      MessageRetentionPeriod: 1209600
+
+  NotificationsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: kongroo-notifications
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt NotificationsDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  NotificationsQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref NotificationsQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt NotificationsQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  - !Ref UserCreatedTopic
+                  - !Ref PaymentProcessedTopic
+
+  UserCreatedSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref UserCreatedTopic
+      Protocol: sqs
+      Endpoint: !GetAtt NotificationsQueue.Arn
+      RawMessageDelivery: true
+
+  PaymentProcessedSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref PaymentProcessedTopic
+      Protocol: sqs
+      Endpoint: !GetAtt NotificationsQueue.Arn
+      RawMessageDelivery: true
+
+  NotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: kongroo-notifications
+      Description: Logs simulated welcome and purchase-confirmation emails for FIAP Cloud Games.
+      CodeUri: src/Kongroo.Notifications/
+      Handler: Kongroo.Notifications::Kongroo.Notifications.Function::Handle
+      Runtime: dotnet10
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Timeout: 10
+      # Learner Lab forbids creating IAM roles; LabRole is pre-provisioned and broad enough.
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/LabRole
+      Events:
+        Notifications:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt NotificationsQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+
+  NotificationsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${NotificationsFunction}
+      RetentionInDays: 7
+
+Outputs:
+  NotificationsQueueUrl:
+    Description: SQS queue the function consumes
+    Value: !Ref NotificationsQueue
+  UserCreatedTopicArn:
+    Value: !Ref UserCreatedTopic
+  PaymentProcessedTopicArn:
+    Value: !Ref PaymentProcessedTopic
+  NotificationsFunctionName:
+    Value: !Ref NotificationsFunction

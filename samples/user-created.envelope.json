@@ -1,0 +1,20 @@
+{
+  "messageId": "0199342a-2b3c-7d4e-8f90-0123456789ab",
+  "conversationId": "0199342a-2b3c-7d4e-8f90-0123456789ac",
+  "sourceAddress": "amazonsqs://us-east-1/identity-api_bus_abc",
+  "destinationAddress": "amazonsqs://us-east-1/kongroo-user-created?type=topic",
+  "messageType": [
+    "urn:message:Kongroo.Identity.Contracts:UserCreatedIntegrationEvent",
+    "urn:message:Kongroo.BuildingBlocks.Application:IntegrationEvent"
+  ],
+  "message": {
+    "userId": "0199342a-0000-7000-8000-000000000001",
+    "email": "ada@example.com",
+    "name": "Ada Lovelace",
+    "integrationEventId": "0199342a-0000-7000-8000-000000000002",
+    "occurredAt": "2026-09-10T12:00:00+00:00"
+  },
+  "sentTime": "2026-09-10T12:00:00.1234567Z",
+  "headers": {},
+  "host": { "machineName": "identity-api", "processName": "Kongroo.Identity" }
+}

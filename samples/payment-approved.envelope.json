@@ -1,0 +1,20 @@
+{
+  "messageId": "0199342a-2b3c-7d4e-8f90-0123456789bb",
+  "messageType": [
+    "urn:message:Kongroo.Payments.Contracts:PaymentProcessedIntegrationEvent",
+    "urn:message:Kongroo.BuildingBlocks.Application:IntegrationEvent"
+  ],
+  "message": {
+    "paymentId": "0199342a-0000-7000-8000-000000000011",
+    "orderId": "0199342a-0000-7000-8000-000000000012",
+    "customerId": "0199342a-0000-7000-8000-000000000013",
+    "customerEmail": "grace@example.com",
+    "customerName": "Grace Hopper",
+    "totalAmount": 59.90,
+    "currency": "BRL",
+    "isApproved": true,
+    "processedAt": "2026-09-10T12:05:00+00:00",
+    "integrationEventId": "0199342a-0000-7000-8000-000000000014",
+    "occurredAt": "2026-09-10T12:05:00+00:00"
+  }
+}
