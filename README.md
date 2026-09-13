@@ -6,12 +6,15 @@ by writing structured log lines to **CloudWatch Logs**.
 
 ## How it is triggered
 
-```
-Identity ──publish──▶ SNS kongroo-user-created ──────┐
-                                                     ├──▶ SQS kongroo-notifications ──▶ Lambda ──▶ CloudWatch
-Payments ──publish──▶ SNS kongroo-payment-processed ─┘          │ 3 failures
-                                                                ▼
-                                                    SQS kongroo-notifications-dlq
+```mermaid
+flowchart LR
+    identity[Identity] -.->|UserCreatedIntegrationEvent| t1{{SNS kongroo-user-created}}
+    payments[Payments] -.->|PaymentProcessedIntegrationEvent| t2{{SNS kongroo-payment-processed}}
+    t1 -.-> q[/SQS kongroo-notifications/]
+    t2 -.-> q
+    q -.->|"batch of 10"| fn[[Lambda Function.Handle]]
+    fn --> cw[CloudWatch Logs<br/>simulated email line]
+    q -.->|"3 failures"| dlq[/SQS kongroo-notifications-dlq/]
 ```
 
 | Event                                         | Source   | Action                                       |
