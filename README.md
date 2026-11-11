@@ -1,5 +1,7 @@
 # <img alt="Kongroo" src="./logo.png" width="40"/> Kongroo.Notifications
 
+[![CI/CD](https://github.com/almeidajr/Kongroo.Notifications/actions/workflows/ci-cd.yml/badge.svg?branch=master)](https://github.com/almeidajr/Kongroo.Notifications/actions/workflows/ci-cd.yml)
+
 Serverless notifications for FIAP Cloud Games (Phase 3). An **AWS Lambda** (.NET 10) triggered by an
 **SQS queue** replaces the always-on NotificationsAPI container from Phase 2. It simulates email delivery
 by writing structured log lines to **CloudWatch Logs**.
